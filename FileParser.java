@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class FileParser
 {
     private String _path = "";                  
-    private ArrayList<Task> _taskList; 	// nad tym nie myślałem jeszcze, jak to ugryźć :<
+    private ArrayList<Task> _taskList; 
     private ArrayList<TaskTemplate> _templateList; 
     
     public FileParser(String path)
@@ -15,7 +15,7 @@ public class FileParser
         _templateList = new ArrayList<TaskTemplate>();
     }
     
-    public void loadProcessList()
+    public void loadTaskList()
     {
         FileReader reader = null;			
         BufferedReader breader = null;

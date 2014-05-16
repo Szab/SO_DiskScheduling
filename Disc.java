@@ -14,7 +14,8 @@ public class Disc
 
 	public void add(int sector, Task task) // dodanie na pozycjê, konretnego Task'u
 	{
-		taskList[sector] = task;
+		if(sector<taskList.length)
+			taskList[sector] = task;
 	}
 	
 	public Disc(int size, TaskManager taskMan) //Konstruktor

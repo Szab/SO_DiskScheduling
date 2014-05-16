@@ -1,5 +1,5 @@
 
-//W pliku niech bêdzie GEN [co ile] [w którym momencie ma siê pojawiæ] [id] [sector, w którym ma siê pojawiæ (tak? po co? zostawmy w razie w.)] [ile Tasków]
+//W pliku niech bï¿½dzie GEN [co ile] [w ktï¿½rym momencie ma siï¿½ pojawiï¿½] [id] [sector, w ktï¿½rym ma siï¿½ pojawiï¿½ (tak? po co? zostawmy w razie w.)] [ile Taskï¿½w]
 
 public class TaskTemplate
 {
@@ -15,6 +15,6 @@ public class TaskTemplate
         this.sector = sector;
         this.interval = interval;
         this.occurs = occurs;
-        this.remains = -1;
+        this.remains = remains;
     }
 }
