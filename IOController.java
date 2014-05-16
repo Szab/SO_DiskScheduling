@@ -5,12 +5,12 @@
 import java.lang.Thread;
 public class IOController
 {   
-    private TaskManager procMan = null;   // Referencja do ProcessManagera
+    private ProcessManager procMan = null;   // Referencja do ProcessManagera
     private SimulationGUI GUI = null;       // Referencja do GUI
     
     
     // Konstruktor
-    public IOController(TaskManager procMan)
+    public IOController(ProcessManager procMan)
     {
         this.procMan = procMan;
     }

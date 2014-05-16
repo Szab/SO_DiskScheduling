@@ -1,19 +1,34 @@
-public class Task
+/* Klasa Process: reprezentacja procesu w programie */
+
+public class Process
 {
-    public int sector = 0; 
-    public int timeCreated = 0;
-    public String id = "";
+    public int duration = 0; // Czas potrzebny do realizacji procesu
+    public int timeLeft = 0; // Pozosta≈Çy czas do pe≈Çnej realizacji procesu
+    public int timeCreated = 0; // Jednostka czasu w kt√≥rej utworzono proces
+    String id = ""; // Identyfikator procesu
     
-    public Task(String id, Integer sector) // tak jak poprzednio konstruktor dla poczπtkowych (niegenerowanych procesÛw)
+    // Konstruktor dwuparametrowy dla proces√≥w wczytywanych na poczƒÖtku
+    public Process(String id, Integer duration)
     {
-    	this(id,sector,0);
+        this(id,duration,0);
     }
 
-    public Task(String id, Integer sector, Integer timeCreated) // w≥aúciwy konstruktor z flagπ, kiedy zosta≥ stworzony Task
+    // W≈Ça≈õciwy konstruktor
+    public Process(String id, Integer duration, Integer timeCreated)
     {
-    	this.id = id;
-    	this.sector = sector;
-    	this.timeCreated = timeCreated;
+        this.duration = duration;
+        this.timeCreated = timeCreated;
+        this.timeLeft = this.duration;
+        this.id = id;
+    }
+    
+    public boolean isDone()
+    {
+        return timeLeft == 0;
     }
 
+    public void doIt()
+    {
+        timeLeft--;
+    }
 }

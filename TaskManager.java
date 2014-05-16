@@ -1,121 +1,114 @@
+/* Klasa ProcessManager:
+- Obsługa generatora procesów
+- Zliczanie wykonań
+- Generowanie statystyk
+- Wybór algorytmu
+*/
+
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class TaskManager
+public class ProcessManager
 {
-    public int numberRealised = 0; //liczba zrealizowanych Task'ów
-    public int totalJumps = 0; // liczba zrealizowanych skoków (od previous do current)
-    public int workTime = 0; // łączny czas pracy
-    public int currentPos = 50; // aktualna pozycja głowicy dysku (domyślnie 50)
+    public int numberRealised = 0; // Liczba w pełni zrealizowanych procesów
+    public int workTime = 0; // Liczba zrealizowanych kwantów czasu
+    public int overallWaited = 0; // Suma czasów oczekiwania na wykonanie
+    public int quantSize = 0;  // Długość kwantu czasu dla ROT
     
-    public Disc disc; // pole Disc jako ułatwienie patrz. dokumentacja klasy Disc
+    private boolean _locked = false;
     
-    public Task current = null; //aktualny Task
-    public Task previous = null; // poprzedni task
+    public ArrayList<Process> processList; // Lista procesów do zrealizowania
+                                             // PAMIĘTAĆ O ZACHOWANIU KOLEJNOŚCI
+    public ArrayList<ProcessTemplate> _templateList; // Lista szablonów dla generatora
     
-    private boolean _locked = false; // blokada generatora
-                                               
-    public ArrayList<TaskTemplate> _templateList; // lista szablonów dodawania Task'ów do symulacji
+    private Simulation _simulation; // Obecnie wykonywana symulacja
+    private IOController controller; // Kontroler wejścia/wyjścia
     
-    
-    private Simulation _simulation; 
-    private IOController controller; 
-    
+    // Zwraca sredni czas oczekiwania na realizacje
     public double getAverageTime()
     {
-        return numberRealised==0 ? 0 : (double)totalJumps/(double)numberRealised;
+        return numberRealised==0 ? 0 : (double)overallWaited/(double)numberRealised;
     }
-
+    
+    // Obsługa procesu
+    
+    // Pojedynczy krok
+    public void nextStep()
+    {        
+        processGenerator();
+        if(processList.size()!=0) _simulation.serve();
+        controller.update(); 
+    }
+        
+    // Nastepny proces
+    public void nextProcess()
+    {
+        int currentRealised = numberRealised;       
+        while(currentRealised==numberRealised && processList.size()!=0)
+        {
+            _simulation.serve();
+            processGenerator();
+        }
+        controller.update(); 
+    }
+    
+    // Zakoncz symulacje
+    public void endSimulation()
+    {       
+        while(processList.size()!=0)
+        {
+            _simulation.serve();
+        }
+        controller.update(); 
+    }
+    
+    // Blokada generatora procesów
     public void lockProcessGenerator()
     {
         _locked = true;
     }
     
     
+    // Odblokowanie generatora procesów
     public void unlockProcessGenerator()
     {
         _locked = false;
     }
     
-    public void nextStep() //kolejny krok (jednostka czasu)
-    {        
-        taskGenerator();
-        if(!disc.isDone()) _simulation.serve();
-        workTime++;
-        controller.update(); 
-    }
-        
-    public void nextTask() //przeskoczenie do kolejnego Task'u
+    // Dodaje generowane procesy do listy
+    private void processGenerator()
     {
-        int currentRealised = numberRealised;       
-        while(currentRealised==numberRealised && !disc.isDone() )
+        if(_locked) return;
+        for(ProcessTemplate template : _templateList)
         {
-            _simulation.serve();
-            workTime++;
-            taskGenerator();
-        }
-        controller.update(); 
-    }
- 
-    public void endSimulation() //przeskoczenie do końca symulacji
-    {       
-        while(!disc.isDone())
-        {
-        	_simulation.serve();
-        	workTime++;
-        }
-        controller.update(); 
-    }
-
-    private void taskGenerator()
-    {
-    	if(_locked) return;
-        for(TaskTemplate template : _templateList)
-        {
-        	//jeżeli nastąpił czas wywołania (pierwszego pojawienia się Task'a, lub po pojawieniu się następuje interwał jego pojawiania się
-            if(template.occurs == workTime || (template.occurs > workTime && workTime%template.interval == 0))
+            if(template.remaining!=0 && workTime%template.interval == 0)
             {
                 controller.updateGeneratedCount();
                 String randomID = template.id
-                        +UUID.randomUUID().toString();
-                //mam nadzieję, że nie każesz mi tego tłumaczyć, mam nadzieję, że działa ;*
-                if(disc.taskList[template.sector] == null)
-                {
-                Task newTask = new Task(randomID,template.sector, workTime);
-                disc.add(template.sector, newTask);
-                }else{
-                	boolean wasAdded = false;
-                	int sectorNew = template.sector - 1;
-                	while(!wasAdded && sectorNew != template.sector)
-                	{
-                		if(sectorNew != 0 && disc.taskList[sectorNew] == null)
-                		{
-                			Task newTask = new Task(randomID, sectorNew, workTime);
-                			disc.add(sectorNew,newTask);
-                			wasAdded = true;
-                		}else if(sectorNew != 0 || sectorNew > template.sector){
-                			sectorNew--;
-                		}else if(sectorNew == 0){
-                			sectorNew = disc.taskList.length;
-                		}
-                	}
-                }
+                        +UUID.randomUUID().toString(); // Generowanie losowego ID
+                Process newProcess = new Process(randomID,template.duration, workTime);
+                processList.add(newProcess);
+                template.remaining--;
             }
         }
     }
+    
+    // Pobiera obecnie realizowany proces
+    public Process getCurrent()
+    {
+        return _simulation.current;
+    }
+    
+    // Inicjalizuje PM
     public void initialize(Simulation sim)
     {
         _simulation = sim;
         controller.initialize();
     }
     
-    public TaskManager(int size, ArrayList<Task>tasksToAdd, ArrayList<TaskTemplate> templateList)
+    public ProcessManager(ArrayList<Process> processList, ArrayList<ProcessTemplate> templateList)
     {
-    	this.disc = new Disc(size,this);
-        for(Task task : tasksToAdd)
-        {
-        	disc.add(task.sector, task);
-        }
+        this.processList = processList;
         _templateList = templateList;
         controller = new IOController(this);
     }
