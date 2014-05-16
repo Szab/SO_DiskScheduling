@@ -1,30 +1,23 @@
-/* Klasa FileParser:
-- Wczytywanie listy procesów z pliku
-- Generowanie listy procesów
-- Generowanie listy szablonów
-*/
-
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.ArrayList;
 
 public class FileParser
 {
-    private String _path = "";                  // Ścieżka pliku z procesami
-    private ArrayList<Process> _processList; 	// Lista robocza procesów
-    private ArrayList<ProcessTemplate> _templateList; // Lista robocza wzorów
+    private String _path = "";                  
+    private ArrayList<Task> _taskList; 	// nad tym nie myślałem jeszcze, jak to ugryźć :<
+    private ArrayList<TaskTemplate> _templateList; 
     
     public FileParser(String path)
     {
         _path = path;
-        _processList = new ArrayList<Process>();
-        _templateList = new ArrayList<ProcessTemplate>();
+        _taskList = new ArrayList<Task>();
+        _templateList = new ArrayList<TaskTemplate>();
     }
     
-    // Ładowanie procesów do zmiennej
     public void loadProcessList()
     {
-        FileReader reader = null;			// Deklaracja zmiennych odczytu
+        FileReader reader = null;			
         BufferedReader breader = null;
 
         try
@@ -32,19 +25,18 @@ public class FileParser
             reader = new FileReader(_path);
             breader = new BufferedReader(reader);
             
-			// Odczytywanie kolejnych linii i tworzenie kolejnych obiektów
-            while(breader.ready())
+			while(breader.ready())
             {
                 String fileLine = breader.readLine();
                 String[] command = fileLine.split(" ");
-                if( command.length==2 )		// Ładowanie procesów stałych
+                if( command.length==2 )
                 {
-                    _processList.add( new Process( command[0] , Integer.parseInt(command[1]) ));
+                    _taskList.add( new Task( command[0] , Integer.parseInt(command[1]) ));
                 }
-                if( command[0].equals("GEN") )	// Ładowanie procesów generowanych
+                if( command[0].equals("GEN") )
                 {
-                    _templateList.add( new ProcessTemplate(command[3],Integer.parseInt(command[4])
-                            ,Integer.parseInt(command[1]),Integer.parseInt(command[2])) );
+                    _templateList.add( new TaskTemplate(command[3],Integer.parseInt(command[4])
+                            ,Integer.parseInt(command[1]),Integer.parseInt(command[2]), Integer.parseInt(command[5])));
                 }
             }
             
@@ -56,8 +48,7 @@ public class FileParser
         }
         finally
         {
-			// ZAMKNIĘCIE STRUMIENIA
-            if(breader != null) 
+			if(breader != null) 
             {
                 try
                 {
@@ -76,20 +67,18 @@ public class FileParser
                 }
                 catch(Exception ex)
                 {
-                    System.out.println("Błąd przy zamykaniu pliku. "+ex.getMessage());
+                    System.out.println("błąd przy zamykaniu pliku. "+ex.getMessage());
                 }
             }
         }
     }
     
-    // Przekazywanie listy procesów
-    public ArrayList<Process> getProcessList() 
+    public ArrayList<Task> getTaskList() 
     {
-        return _processList;
+        return _taskList;
     }
     
-    // Przekazywanie listy wzorów
-    public ArrayList<ProcessTemplate> getTemplateList()
+    public ArrayList<TaskTemplate> getTemplateList()
     {
                 return _templateList;
     }

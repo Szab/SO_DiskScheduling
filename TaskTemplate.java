@@ -1,19 +1,20 @@
-/* Klasa ProcessTemplate: szablon struktury procesu dla generatora proces√≥w
-PRZYK≈ÅAD U≈ªYCIA W PLIKACH:
-GEN [interwal] [ile razy] [id] [dlugosc] */
 
-public class ProcessTemplate
+//W pliku niech bÍdzie GEN [co ile] [w ktÛrym momencie ma siÍ pojawiÊ] [id] [sector, w ktÛrym ma siÍ pojawiÊ (tak? po co? zostawmy w razie w.)] [ile TaskÛw]
+
+public class TaskTemplate
 {
-    int duration = 0;  // Czas trwania procesu
-    int interval = 1;  // Interwa≈Ç generowania proces√≥w
-    int remaining = -1;
-    String id = "";    // Wzorzec identyfikator√≥w
+    int sector = 0;
+    int occurs = 0;
+    int interval = 0;
+    int remains = -1;
+    String id = "";
     
-    ProcessTemplate(String idTemplate, int duration, int interval, int remaining)
+    TaskTemplate(String idTemplate, int sector, int interval, int occurs, int remains)
     {
         id = idTemplate;
-        this.duration = duration;
+        this.sector = sector;
         this.interval = interval;
-        this.remaining = remaining;
+        this.occurs = occurs;
+        this.remains = -1;
     }
 }
